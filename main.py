@@ -4,58 +4,61 @@ from player import *
 from pacmanmap import *
 from pygame.locals import *
 
-# Set up pygame
-pg.init()
-screen = pg.display.set_mode((872, 872))
-clock = pg.time.Clock()
-running = True
-delta = 0
-clock.tick(60)  # Limit FPS to 60
+def main():
+    # Set up pygame
+    pg.init()
+    screen = pg.display.set_mode((872, 872))
+    clock = pg.time.Clock()
+    running = True
+    delta = 0
+    clock.tick(60)  # Limit FPS to 60
 
-# Create background map
-background = pg.image.load(os.path.join('assets', 'pacmanMaze.png')).convert_alpha()
-# Scale background image to fit screen window
-# background = pg.transform.scale(background, screen.get_size())
+    # Start sound
+    pg.mixer.music.load('./assets/MainTheme.wav')
+    pg.mixer.music.play(-1)
 
-# Create map walls
-pacmanmap = PacmanMap()
+    # Create background map
+    background = pg.image.load(os.path.join('assets', 'PacmanMaze.png')).convert_alpha()
+    # Scale background image to fit screen window
+    # background = pg.transform.scale(background, screen.get_size())
 
-# Create player
-player = Player()
+    # Create map walls (pacmanmap is essentially an array of rectangles that fit the background map image)
+    pacmanmap = PacmanMap()
 
-# core loop
-while running:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
+    # Create player
+    player = Player()
 
-    screen.fill([0, 0, 0]) # Set white screen
-    screen.blit(background, (0,0)) # Set background display
+    # Start core game loop
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
-    # Handle Input Events
-    keys = pg.key.get_pressed()
+        screen.fill([0, 0, 0]) # Set white screen
+        screen.blit(background, (0,0)) # Set background display
 
-    # Update Sprites
-    player.update(keys)
-    # Check if the target direction will result in a collision and handle movement
-    # player.checkDirection(pacmanmap, delta)
-    player.move(pacmanmap, delta)
+        # Handle Input Events
+        keys = pg.key.get_pressed()
 
-    # Draw the whole scene
-    player.draw(screen)
-    # pg.draw.rect(screen, (0, 255, 0), player.rect)
+        # Update Sprites
+        player.update(keys, delta)
+        # Check if the target direction will result in a collision and handle movement
+        # player.checkDirection(pacmanmap, delta)
+        player.move(pacmanmap, delta)
 
-    # Only move if collision is not detected
-    # if not player.checkCollision(pacmanmap):
-       # player.move(delta)
+        # Draw the whole scene
+        player.draw(screen)
 
-    # color in walls to see them
-    for wall in pacmanmap.walls:
-        pg.draw.rect(screen, (255, 0, 0), wall)
+        # color in walls to see them
+        #for wall in pacmanmap.walls:
+        #    pg.draw.rect(screen, (255, 0, 0), wall)
 
-    # Flip buffer when drawing is done
-    pg.display.flip()
+        # Flip buffer when drawing is done
+        pg.display.flip()
 
-    delta = clock.tick(60) / 1000.0 # Scale delta
+        delta = clock.tick(60) / 1000.0 # Scale delta
 
-pg.quit()
+# Startup the main method to get things going.
+if __name__ == "__main__":
+    main()
+    pg.quit()
