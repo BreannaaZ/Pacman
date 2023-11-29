@@ -6,7 +6,8 @@ from pygame.locals import *
 from pellet import *
 from pygame.freetype import *
 from consumable import *
-
+from powerup import *
+from ghost import *
 
 # Note: Should this be made into a class instead?
 def main():
@@ -85,13 +86,25 @@ def main():
     for y in range(585, 850, 50):
         pellets.append(Pellet(y, 430))
 
+    # Create powerups
+    powerups = [Powerup(435, 180),
+                Powerup(80, 790),
+                Powerup(790, 790)]
+
     # Calculate winning score by adding up pellets value and powerUps value
     winningScore = 0
     for pellet in pellets:
         winningScore += pellet.value
+    for powerup in powerups:
+        winningScore += powerup.value
 
     # Create player
     player = Player()
+
+    # Create ghosts
+    blueGhost = Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
+                      pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha(),
+                      75, 590, "right")
 
     # Start core game loop
     while running:
@@ -106,28 +119,29 @@ def main():
         keys = pg.key.get_pressed()
 
         # Update Sprites
-        player.update(keys, delta)
-        # Check if the target direction will result in a collision and handle movement
-        # player.checkDirection(pacmanmap, delta)
+        player.update(keys, delta) # Update player based on key input
         player.move(pacmanmap, delta)
+        blueGhost.move(pacmanmap, delta, player.rect.centerx, player.rect.centery)
 
         # Draw the whole scene
         player.draw(screen)
+        blueGhost.draw(screen)
 
         # Draw pellets
         for pellet in pellets:
             pellet.draw(screen)
             score += pellet.consume(player.rect)
 
+        # Draw powerups
+        for powerup in powerups:
+            powerup.draw(screen)
+            score += powerup.consume(player.rect)
+
         # Display score
         scoreText = "Score: "
         scoreText += str(score)
         scoreSurface = font.render(scoreText, False, [254, 254, 254])
         screen.blit(scoreSurface, (355, 0))
-
-        # color in walls to see them
-        # for wall in pacmanmap.walls:
-        #    pg.draw.rect(screen, (255, 0, 0), wall)
 
         # Flip buffer when drawing is done
         pg.display.flip()
