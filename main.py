@@ -31,6 +31,10 @@ def main():
     pg.font.init()
     font = pg.font.SysFont('ocraextended', 30)
 
+    # Get lives icons
+    livesIcon = pg.image.load(os.path.join('assets', 'Pacman3.png')).convert_alpha()
+    livesIcon = pg.transform.scale(livesIcon, (30, 30))
+
     # Create background map
     background = pg.image.load(os.path.join('assets', 'PacmanMaze.png')).convert_alpha()
     # Scale background image to fit screen window
@@ -122,7 +126,7 @@ def main():
         current_time = pg.time.get_ticks()
 
         # Update Sprites
-        player.update(keys, delta) # Update player based on key input
+        player.update(keys, delta, blueGhost) # Update player based on key input
         player.move(pacmanmap, delta)
         blueGhost.move(pacmanmap, delta, player.rect.centerx, player.rect.centery)
 
@@ -141,7 +145,7 @@ def main():
             powerup.draw(screen)
             if powerup.consume(player.rect):
                 score += powerup.value
-                powerup_end_time = pg.time.get_ticks() + 3000  # display for 3 seconds
+                powerup_end_time = pg.time.get_ticks() + 9000  # display for 3 seconds
 
         if current_time < powerup_end_time:
             blueGhost.mode = "frightened"
@@ -157,10 +161,28 @@ def main():
         scoreSurface = font.render(scoreText, False, [254, 254, 254])
         screen.blit(scoreSurface, (355, 0))
 
+        # Display lives
+        livesText = "LIVES"
+        livesSurface = font.render(livesText, False, [254, 254, 254])
+        screen.blit(livesSurface, (395, 780))
+
+        # Icon positioning: (x, 780)
+        if player.lives >= 1:
+            screen.blit(livesIcon, (385, 815))
+        if player.lives >= 2:
+            screen.blit(livesIcon, (425, 815))
+        if player.lives == 3:
+            screen.blit(livesIcon, (465, 815))
+
         # Flip buffer when drawing is done
         pg.display.flip()
 
         delta = clock.tick(60) / 1000.0  # Scale delta
+
+        # Check for loss condition
+        if player.lives == 0:
+            print("Game over")
+            running = False
 
         # Check for win condition
         if score >= winningScore:

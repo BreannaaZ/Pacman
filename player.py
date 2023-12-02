@@ -5,7 +5,7 @@ from pacmanmap import *
 
 class Player(pg.sprite.Sprite):
     """A class to store Player (pacman) information."""
-
+    __lives = 3
     def __init__(self):
         """Class initializer code."""
         super(Player, self).__init__()  # Call sprite initializer
@@ -32,7 +32,7 @@ class Player(pg.sprite.Sprite):
         # Direction arrows
         self.__Arrow = pg.image.load(os.path.join('assets', 'arrow.png')).convert_alpha()
         self.__ArrowRect = self.__Arrow.get_rect()
-        self.__lives = 3
+        # self.__lives = 3
         self.__mode = "normal"
 
     # PROPERTIES FOR NON PUBLIC ATTRIBUTES
@@ -50,6 +50,10 @@ class Player(pg.sprite.Sprite):
     @mode.setter
     def mode(self, newMode):
         self.__mode = newMode
+
+    @property
+    def lives(self):
+        return self.__lives
 
     def draw(self, screen):
         """Draws the player (pacman) and direction arrow to the screen,
@@ -75,7 +79,7 @@ class Player(pg.sprite.Sprite):
         if self.__new_direction == "left":
             screen.blit(pg.transform.rotate(self.__Arrow, 90), self.__ArrowRect)
 
-    def update(self, keys, delta):
+    def update(self, keys, delta, ghost):
         """Updates the player's direction depending on user input/keys pressed"""
         # Update keys and direction
         if keys[pg.K_s]:
@@ -103,6 +107,15 @@ class Player(pg.sprite.Sprite):
             self.__index = (self.__index + 1) % len(self.__images)
             self.__timer = 0
             self.__image = pg.transform.scale(self.__image, (46, 46))
+
+            # Check for ghost collision
+            if self.rect.colliderect(ghost.rect):
+                if self.mode == "normal":
+                    self.__init__()  # Reinitialize player to reset to default values
+                    self.__lives -= 1  # Decrement lives count
+                elif self.mode == "powered":
+                    ghost.__init__(ghost.image, ghost.startX, ghost.startY, ghost.start_direction) # Reinitialize ghost
+
 
     def move(self, walls, delta):
         """Allows the player to move continuously in a direction until a collision is detected"""

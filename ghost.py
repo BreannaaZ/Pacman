@@ -18,10 +18,13 @@ class Ghost(pg.sprite.Sprite):
         self.__rect = self.__image.get_rect()
 
         # Set ghost starting point
+        self.__startX = centerx
+        self.__startY = centery
         self.__rect.centerx = centerx
         self.__rect.centery = centery
 
         # set starting direction
+        self.__start_direction = start_direction
         self.__current_direction = start_direction
 
         self.__possible_directions = []  # List to hold possible directions for ghost
@@ -64,6 +67,22 @@ class Ghost(pg.sprite.Sprite):
     @mode.setter
     def mode(self, newMode):
         self.__mode = newMode
+
+    @property
+    def image(self):
+        return self.__image
+
+    @property
+    def startX(self):
+        return self.__startX
+
+    @property
+    def startY(self):
+        return self.__startY
+
+    @property
+    def start_direction(self):
+        return self.__start_direction
 
     def draw(self, screen):
         """Draws the ghost to the screen"""
@@ -187,9 +206,7 @@ class Ghost(pg.sprite.Sprite):
     def changeMode(self):
             if self.__mode == "frightened":
                 self.__image = pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha()
-                print("frightened")
             else:
                 self.__image = pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha()
-                print("normal")
             self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
 
