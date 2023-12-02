@@ -81,7 +81,7 @@ class Player(pg.sprite.Sprite):
         if self.__new_direction == "left":
             screen.blit(pg.transform.rotate(self.__Arrow, 90), self.__ArrowRect)
 
-    def update(self, keys, delta, ghost):
+    def update(self, keys, delta, ghosts):
         """Updates the player's direction depending on user input/keys pressed"""
         # Update keys and direction
         if keys[pg.K_s]:
@@ -110,7 +110,8 @@ class Player(pg.sprite.Sprite):
             self.__timer = 0
             self.__image = pg.transform.scale(self.__image, (46, 46))
 
-            # Check for ghost collision
+        # Check for ghost collision
+        for ghost in ghosts:
             if self.rect.colliderect(ghost.rect):
                 if self.mode == "normal":
                     self.__init__()  # Reinitialize player to reset to default values

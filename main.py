@@ -72,8 +72,19 @@ def main():
     player = Player()
 
     # Create ghosts
-    blueGhost = Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
-                      75, 590, "right")
+    ghosts = [Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
+                      75, 75, "right"),
+              Ghost(pg.image.load(os.path.join('assets', 'orangeGhost.png')).convert_alpha(),
+                      790, 75, "right"),
+              Ghost(pg.image.load(os.path.join('assets', 'redGhost.png')).convert_alpha(),
+                      435, 640, "right")]
+
+    #blueGhost = Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
+    #                  75, 590, "right")
+    #OrangeGhost = Ghost(pg.image.load(os.path.join('assets', 'orangeGhost.png')).convert_alpha(),
+    #                  75, 590, "right")
+    #redGhost = Ghost(pg.image.load(os.path.join('assets', 'redGhost.png')).convert_alpha(),
+    #                  75, 590, "right")
 
     # Start core game loop
     while running:
@@ -94,13 +105,15 @@ def main():
         current_time = pg.time.get_ticks()
 
         # Update Sprites
-        player.update(keys, delta, blueGhost) # Update player based on key input
+        player.update(keys, delta, ghosts) # Update player based on key input
         player.move(pacmanmap, delta)
-        blueGhost.move(pacmanmap, delta, player.rect.centerx, player.rect.centery)
+        for ghost in ghosts:
+            ghost.move(pacmanmap, delta, player.rect.centerx, player.rect.centery)
 
         # Draw the whole scene
         player.draw(screen)
-        blueGhost.draw(screen)
+        for ghost in ghosts:
+            ghost.draw(screen)
 
         # Draw pellets
         for pellet in pellets:
@@ -118,13 +131,14 @@ def main():
                 powerup_end_time = pg.time.get_ticks() + 9000  # display for 3 seconds
                 powerups.remove(powerup)
 
-        if current_time < powerup_end_time:
-            blueGhost.mode = "frightened"
-            player.mode = "powered"
-        else:
-            blueGhost.mode = "normal"
-            player.mode = "normal"
-        blueGhost.changeMode()
+        for ghost in ghosts:
+            if current_time < powerup_end_time:
+                ghost.mode = "frightened"
+                player.mode = "powered"
+            else:
+                ghost.mode = "normal"
+                player.mode = "normal"
+            ghost.changeMode()
 
         # Display score
         scoreText = "SCORE: "

@@ -13,6 +13,7 @@ class Ghost(pg.sprite.Sprite):
         super(Ghost, self).__init__()  # Call sprite initializer
 
         # Images and rect
+        self.__originalImage = image
         self.__image = image
         self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
         self.__rect = self.__image.get_rect()
@@ -218,6 +219,6 @@ class Ghost(pg.sprite.Sprite):
             if self.__mode == "frightened":
                 self.__image = pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha()
             else:
-                self.__image = pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha()
+                self.__image = self.__originalImage
             self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
 
