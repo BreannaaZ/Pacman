@@ -116,6 +116,7 @@ def main():
             if consumed:
                 score += points
                 powerup_end_time = pg.time.get_ticks() + 9000  # display for 3 seconds
+                powerups.remove(powerup)
 
         if current_time < powerup_end_time:
             blueGhost.mode = "frightened"
