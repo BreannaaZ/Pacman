@@ -98,12 +98,13 @@ def main():
     for powerup in powerups:
         winningScore += powerup.value
 
+    powerup_end_time = 0
+
     # Create player
     player = Player()
 
     # Create ghosts
     blueGhost = Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
-                      pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha(),
                       75, 590, "right")
 
     # Start core game loop
@@ -118,6 +119,8 @@ def main():
         # Handle Input Events
         keys = pg.key.get_pressed()
 
+        current_time = pg.time.get_ticks()
+
         # Update Sprites
         player.update(keys, delta) # Update player based on key input
         player.move(pacmanmap, delta)
@@ -130,12 +133,23 @@ def main():
         # Draw pellets
         for pellet in pellets:
             pellet.draw(screen)
-            score += pellet.consume(player.rect)
+            if pellet.consume(player.rect):
+                score += pellet.value
 
         # Draw powerups
         for powerup in powerups:
             powerup.draw(screen)
-            score += powerup.consume(player.rect)
+            if powerup.consume(player.rect):
+                score += powerup.value
+                powerup_end_time = pg.time.get_ticks() + 3000  # display for 3 seconds
+
+        if current_time < powerup_end_time:
+            blueGhost.mode = "frightened"
+            player.mode = "powered"
+        else:
+            blueGhost.mode = "normal"
+            player.mode = "normal"
+        blueGhost.changeMode()
 
         # Display score
         scoreText = "Score: "

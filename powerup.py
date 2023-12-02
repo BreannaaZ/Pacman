@@ -16,15 +16,9 @@ class Powerup(Consumable):
         self.rect.centerx = centerx
         self.rect.centery = centery
 
-    def consume(self, rect):
-        """Calls the consume method from super (consumable) to detect for a consumable collision and
-        return the value of the consumed item. If the consumed object is a powerup, calls the powerUp method."""
-        # Calls the powerUp method if the consumed object is the value of a powerup (since consume returns value)
-        consumedValue = super().consume(rect)
-        if consumedValue == self.value:
-            self.powerUp()
-        return consumedValue
-
-    def powerUp(self):
+    def powerUp(self, player, ghost):
         """Gives the player the powerUp ability - can kill ghosts for short interval of time"""
-        pass
+        print("consumed powerup")
+        ghost.changeMode()
+        # player.changeMode(current_time)
+

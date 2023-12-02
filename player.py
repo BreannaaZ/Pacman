@@ -33,6 +33,7 @@ class Player(pg.sprite.Sprite):
         self.__Arrow = pg.image.load(os.path.join('assets', 'arrow.png')).convert_alpha()
         self.__ArrowRect = self.__Arrow.get_rect()
         self.__lives = 3
+        self.__mode = "normal"
 
     # PROPERTIES FOR NON PUBLIC ATTRIBUTES
     @property
@@ -41,6 +42,14 @@ class Player(pg.sprite.Sprite):
     @rect.setter
     def rect(self, newRect):
         self.__rect = newRect
+
+    @property
+    def mode(self):
+        return self.__mode
+
+    @mode.setter
+    def mode(self, newMode):
+        self.__mode = newMode
 
     def draw(self, screen):
         """Draws the player (pacman) and direction arrow to the screen,

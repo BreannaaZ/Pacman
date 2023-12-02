@@ -55,11 +55,11 @@ class Consumable(pg.sprite.Sprite):
 
     def consume(self, rect):
         """Checks for collision of the consumable and given rect (player). Returns
-        the value of the consumable if it has been collided with (consumed)."""
+        boolean of whether the item was consumed or not."""
         if self.__rect.colliderect(rect):
             self.__consumed = True
-            points = self.__value
+            # points = self.__value
             self.__value = 0
-            return points
+            return True
         else:
-            return 0
+            return False
