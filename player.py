@@ -6,6 +6,7 @@ from pacmanmap import *
 class Player(pg.sprite.Sprite):
     """A class to store Player (pacman) information."""
     __lives = 3
+
     def __init__(self):
         """Class initializer code."""
         super(Player, self).__init__()  # Call sprite initializer
@@ -39,6 +40,7 @@ class Player(pg.sprite.Sprite):
     @property
     def rect(self):
         return self.__rect
+
     @rect.setter
     def rect(self, newRect):
         self.__rect = newRect
@@ -114,13 +116,12 @@ class Player(pg.sprite.Sprite):
                     self.__init__()  # Reinitialize player to reset to default values
                     self.__lives -= 1  # Decrement lives count
                 elif self.mode == "powered":
-                    ghost.__init__(ghost.image, ghost.startX, ghost.startY, ghost.start_direction) # Reinitialize ghost
-
+                    ghost.__init__(ghost.image, ghost.startX, ghost.startY, ghost.start_direction)  # Reinitialize ghost
 
     def move(self, walls, delta):
         """Allows the player to move continuously in a direction until a collision is detected"""
         move_amount = 95 * delta
-        if self.checkDirection(self.__new_direction, walls): # Case: No collision on new direction
+        if self.checkDirection(self.__new_direction, walls):  # Case: No collision on new direction
             # Move in the new direction
             if self.__new_direction == "right":
                 self.__rect.centerx += move_amount
@@ -134,7 +135,7 @@ class Player(pg.sprite.Sprite):
             if self.__new_direction != self.__current_direction:
                 self.__changedDirection = True
                 self.__current_direction = self.__new_direction
-        elif self.checkDirection(self.__current_direction, walls): # Case: Collision on new direction but not
+        elif self.checkDirection(self.__current_direction, walls):  # Case: Collision on new direction but not
             # the current direction
             self.__changedDirection = False
             # Keep moving in the current direction
@@ -146,6 +147,17 @@ class Player(pg.sprite.Sprite):
                 self.__rect.centery -= move_amount
             elif self.__current_direction == "down":
                 self.__rect.centery += move_amount
+        # Handle wraparound for "teleporter" part
+        positionX = self.__rect.centerx
+        wrap_around = False
+        if positionX < 0: # Left-side
+            positionX += 872
+            wrap_around = True
+        if positionX > 872: # Right-side
+            positionX -= 872
+            wrap_around = True
+        if wrap_around:
+            self.__rect.centerx = positionX
 
     def checkDirection(self, direction, walls):
         """Checks for a map collision in the given direction, returning true if there is no collision"""

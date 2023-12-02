@@ -103,6 +103,17 @@ class Ghost(pg.sprite.Sprite):
             self.__rect.centery -= move_amount
         if self.__current_direction == "down":
             self.__rect.centery += move_amount
+        # Handle wraparound for "teleporter" part
+        positionX = self.__rect.centerx
+        wrap_around = False
+        if positionX < 0:  # Left-side
+            positionX += 872
+            wrap_around = True
+        if positionX > 872:  # Right-side
+            positionX -= 872
+            wrap_around = True
+        if wrap_around:
+            self.__rect.centerx = positionX
 
     def checkDirection(self, direction, walls):
         """Checks for a map collision in the given direction, returning true if there is no collision"""

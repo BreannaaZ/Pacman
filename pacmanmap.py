@@ -41,8 +41,7 @@ class PacmanMap:
         self.__walls.append(pg.Rect(2*self.__gridSize, 12*self.__gridSize, 2*self.__gridSize, 1*self.__gridSize))
         self.__walls.append(pg.Rect(3*self.__gridSize, 13*self.__gridSize, 1*self.__gridSize, 1*self.__gridSize))
         #   Middle:
-        self.__walls.append(pg.Rect(7*self.__gridSize, 4*self.__gridSize, 3*self.__gridSize, 1*self.__gridSize))
-        self.__walls.append(pg.Rect(8*self.__gridSize, 5*self.__gridSize, 1*self.__gridSize, 1*self.__gridSize))
+        self.__walls.append(pg.Rect(7*self.__gridSize, 4*self.__gridSize, 3*self.__gridSize, 2*self.__gridSize))
         self.__walls.append(pg.Rect(7*self.__gridSize, 10*self.__gridSize, 3*self.__gridSize, 1*self.__gridSize))
         self.__walls.append(pg.Rect(8*self.__gridSize, 11*self.__gridSize, 1*self.__gridSize, 1*self.__gridSize))
         #   Right:
@@ -56,6 +55,13 @@ class PacmanMap:
         self.__walls.append(pg.Rect(13*self.__gridSize, 13*self.__gridSize, 1*self.__gridSize, 1*self.__gridSize))
         # Ghost box:
         self.__walls.append(pg.Rect(7*self.__gridSize, 7*self.__gridSize, 3*self.__gridSize, 2*self.__gridSize))
+
+        self.__walls.append(pg.Rect(6*self.__gridSize, 14*self.__gridSize, 5*self.__gridSize, 2*self.__gridSize))
+
+
+    @property
+    def walls(self):
+        return self.__walls
 
     def mapCollide(self, rect):
         for wall in self.__walls:

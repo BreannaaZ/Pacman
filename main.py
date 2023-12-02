@@ -43,52 +43,16 @@ def main():
     # Create map walls (pacmanmap is essentially an array of rectangles that fit the background map image)
     pacmanmap = PacmanMap()
 
-    # Create all the pellets (using loops to more easily get the coordinates to add the pellets to the map)
+    # Create a grid of pellets covering the entire screen
     pellets = []
-    for x in range(80, 300, 50):
-        pellets.append(Pellet(75, x))
-    for x in range(590, 700, 50):
-        pellets.append(Pellet(75, x))
-    for x in range(590, 700, 50):
-        pellets.append(Pellet(785, x))
-    for x in range(80, 200, 50):
-        pellets.append(Pellet(385, x))
-    for x in range(80, 200, 50):
-        pellets.append(Pellet(485, x))
-    for x in range(80, 750, 50):
-        pellets.append(Pellet(635, x))
-    for x in range(80, 300, 50):
-        pellets.append(Pellet(785, x))
-    for x in range(80, 750, 50):
-        pellets.append(Pellet(230, x))
-    for x in range(181, 600, 50):
-        pellets.append(Pellet(335, x))
-    for x in range(181, 600, 50):
-        pellets.append(Pellet(535, x))
-    for y in range(125, 200, 50):
-        pellets.append(Pellet(y, 80))
-    for y in range(280, 350, 50):
-        pellets.append(Pellet(y, 80))
-    for y in range(535, 635, 50):
-        pellets.append(Pellet(y, 80))
-    for y in range(635, 835, 50):
-        pellets.append(Pellet(y, 80))
-    for y in range(125, 200, 50):
-        pellets.append(Pellet(y, 180))
-    for y in range(280, 300, 50):
-        pellets.append(Pellet(y, 180))
-    for y in range(535, 635, 50):
-        pellets.append(Pellet(y, 180))
-    for y in range(635, 835, 50):
-        pellets.append(Pellet(y, 180))
-    for y in range(125, 200, 50):
-        pellets.append(Pellet(y, 280))
-    for y in range(635, 835, 50):
-        pellets.append(Pellet(y, 280))
-    for y in range(30, 300, 50):
-        pellets.append(Pellet(y, 430))
-    for y in range(585, 850, 50):
-        pellets.append(Pellet(y, 430))
+    for x in range(30, 872, 50):
+        for y in range(30, 872, 50):
+            pellets.append(Pellet(x, y))
+
+    # Now remove any pellets that overlap the walls
+    # List comprehension to set pellets to only the pellets not colliding with walls
+    # newlist = [expression for item in iterable if condition == True]
+    pellets = [pellet for pellet in pellets if not any(pellet.rect.colliderect(wall) for wall in pacmanmap.walls)]
 
     # Create powerups
     powerups = [Powerup(435, 180),
@@ -120,6 +84,10 @@ def main():
         screen.fill([0, 0, 0])  # Set white screen
         screen.blit(background, (0, 0))  # Set background display
 
+        # color in walls to see them
+        # for wall in pacmanmap.walls:
+        #    pg.draw.rect(screen, (255, 0, 0), wall)
+
         # Handle Input Events
         keys = pg.key.get_pressed()
 
@@ -137,14 +105,16 @@ def main():
         # Draw pellets
         for pellet in pellets:
             pellet.draw(screen)
-            if pellet.consume(player.rect):
-                score += pellet.value
+            (consumed, points) = pellet.consume(player.rect)
+            if consumed:
+                score += points
 
         # Draw powerups
         for powerup in powerups:
             powerup.draw(screen)
-            if powerup.consume(player.rect):
-                score += powerup.value
+            (consumed, points) = powerup.consume(player.rect)
+            if consumed:
+                score += points
                 powerup_end_time = pg.time.get_ticks() + 9000  # display for 3 seconds
 
         if current_time < powerup_end_time:
@@ -156,23 +126,23 @@ def main():
         blueGhost.changeMode()
 
         # Display score
-        scoreText = "Score: "
+        scoreText = "SCORE: "
         scoreText += str(score)
         scoreSurface = font.render(scoreText, False, [254, 254, 254])
-        screen.blit(scoreSurface, (355, 0))
+        screen.blit(scoreSurface, (355, 5))
 
         # Display lives
         livesText = "LIVES"
         livesSurface = font.render(livesText, False, [254, 254, 254])
-        screen.blit(livesSurface, (395, 780))
+        screen.blit(livesSurface, (390, 735))
 
         # Icon positioning: (x, 780)
         if player.lives >= 1:
-            screen.blit(livesIcon, (385, 815))
+            screen.blit(livesIcon, (380, 775))
         if player.lives >= 2:
-            screen.blit(livesIcon, (425, 815))
+            screen.blit(livesIcon, (420, 775))
         if player.lives == 3:
-            screen.blit(livesIcon, (465, 815))
+            screen.blit(livesIcon, (460, 775))
 
         # Flip buffer when drawing is done
         pg.display.flip()

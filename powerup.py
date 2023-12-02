@@ -16,9 +16,14 @@ class Powerup(Consumable):
         self.rect.centerx = centerx
         self.rect.centery = centery
 
-    def powerUp(self, player, ghost):
-        """Gives the player the powerUp ability - can kill ghosts for short interval of time"""
-        print("consumed powerup")
+    def powerUp(self, player, ghost, current_time, end_time):
+        """Changes the ghost into a frightened state, and gives the player the powerUp ability
+        for a short time interval. """
+        if current_time < end_time:
+            ghost.mode = "frightened"
+            player.mode = "powered"
+        else:
+            ghost.mode = "normal"
+            player.mode = "normal"
         ghost.changeMode()
-        # player.changeMode(current_time)
 
