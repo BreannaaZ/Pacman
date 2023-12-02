@@ -117,7 +117,7 @@ class Player(pg.sprite.Sprite):
                     self.__init__()  # Reinitialize player to reset to default values
                     self.__lives -= 1  # Decrement lives count
                 elif self.mode == "powered":
-                    ghost.__init__(ghost.image, ghost.startX, ghost.startY, ghost.start_direction)  # Reinitialize ghost
+                    ghost.__init__(ghost.originalImage, ghost.startX, ghost.startY, ghost.start_direction)  # Reinitialize ghost
 
     def move(self, walls, delta):
         """Allows the player to move continuously in a direction until a collision is detected"""

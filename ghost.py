@@ -74,6 +74,10 @@ class Ghost(pg.sprite.Sprite):
         return self.__image
 
     @property
+    def originalImage(self):
+        return self.__originalImage
+
+    @property
     def startX(self):
         return self.__startX
 

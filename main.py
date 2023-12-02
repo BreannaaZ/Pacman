@@ -106,15 +106,21 @@ def main():
 
         # Update Sprites
         player.update(keys, delta, ghosts) # Update player based on key input
+        for ghost in ghosts: # Update ghosts
+            if current_time < powerup_end_time:
+                ghost.mode = "frightened"
+                player.mode = "powered"
+            else:
+                ghost.mode = "normal"
+                player.mode = "normal"
+            ghost.changeMode()
+
+        # Move player and ghost
         player.move(pacmanmap, delta)
         for ghost in ghosts:
             ghost.move(pacmanmap, delta, player.rect.centerx, player.rect.centery)
 
         # Draw the whole scene
-        player.draw(screen)
-        for ghost in ghosts:
-            ghost.draw(screen)
-
         # Draw pellets
         for pellet in pellets:
             pellet.draw(screen)
@@ -131,14 +137,12 @@ def main():
                 powerup_end_time = pg.time.get_ticks() + 9000  # display for 3 seconds
                 powerups.remove(powerup)
 
+        # Draw player
+        player.draw(screen)
+
+        # Draw ghosts
         for ghost in ghosts:
-            if current_time < powerup_end_time:
-                ghost.mode = "frightened"
-                player.mode = "powered"
-            else:
-                ghost.mode = "normal"
-                player.mode = "normal"
-            ghost.changeMode()
+            ghost.draw(screen)
 
         # Display score
         scoreText = "SCORE: "
