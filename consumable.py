@@ -40,6 +40,10 @@ class Consumable(pg.sprite.Sprite):
 
     @consumed.setter
     def consumed(self, newConsumed):
+        if not newConsumed:
+            raise ValueError("Consumed cannot be blank.")
+        if not isinstance(newConsumed, bool):
+            raise ValueError("Consumed must be a boolean.")
         self.__consumed = newConsumed
 
     @property
@@ -48,6 +52,10 @@ class Consumable(pg.sprite.Sprite):
 
     @value.setter
     def value(self, newValue):
+        if not newValue:
+            raise ValueError("Value cannot be blank.")
+        if not isinstance(newValue, int):
+            raise ValueError("Value must be an integer.")
         self.__value = newValue
 
     @property
@@ -56,6 +64,10 @@ class Consumable(pg.sprite.Sprite):
 
     @image.setter
     def image(self, newImage):
+        if not newImage:
+            raise ValueError("Image cannot be blank.")
+        if not isinstance(newImage, pg.Surface):
+            raise ValueError("Image must be a pygame surface object.")
         self.__image = newImage
 
     @property
@@ -64,6 +76,10 @@ class Consumable(pg.sprite.Sprite):
 
     @rect.setter
     def rect(self, newRect):
+        if not newRect:
+            raise ValueError("Rect cannot be blank.")
+        if not isinstance(newRect, pg.Rect):
+            raise ValueError("Rect must be a pygame rectangle object.")
         self.__rect = newRect
 
     def draw(self, screen):

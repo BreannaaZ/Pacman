@@ -45,6 +45,10 @@ class Ghost(pg.sprite.Sprite):
 
     @rect.setter
     def rect(self, newRect):
+        if not newRect:
+            raise ValueError("Rect cannot be blank.")
+        if not isinstance(newRect, pg.Rect):
+            raise ValueError("Rect must be a pygame rectangle object.")
         self.__rect = newRect
 
     @property
@@ -53,6 +57,10 @@ class Ghost(pg.sprite.Sprite):
 
     @mode.setter
     def mode(self, newMode):
+        if not newMode:
+            raise ValueError("Mode cannot be blank.")
+        if newMode != "normal" and newMode != "frightened":
+            raise ValueError("Mode must be either normal or frightened.")
         self.__mode = newMode
 
     @property

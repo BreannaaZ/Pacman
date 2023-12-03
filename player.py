@@ -51,6 +51,10 @@ class Player(pg.sprite.Sprite):
 
     @mode.setter
     def mode(self, newMode):
+        if not newMode:
+            raise ValueError("Mode cannot be blank.")
+        if newMode != "normal" and newMode != "powered":
+            raise ValueError("Mode must be either normal or powered.")
         self.__mode = newMode
 
     @property
