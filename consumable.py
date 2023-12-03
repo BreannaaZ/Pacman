@@ -1,12 +1,11 @@
 import os
 import pygame as pg
 import pygame.draw
-
 from pacmanmap import *
 
 
 class Consumable(pg.sprite.Sprite):
-    def __init__(self, value, image):
+    def __init__(self, value, image, centerx, centery):
         """Class initializer code."""
         super(Consumable, self).__init__()  # Call sprite initializer
         # Instance variables
@@ -14,8 +13,10 @@ class Consumable(pg.sprite.Sprite):
         self.__value = value
         self.__image = image
         self.__rect = self.__image.get_rect()
+        self.__rect.centerx = centerx
+        self.__rect.centery = centery
 
-    # PROPERTIES FOR NON PUBLIC ATTRIBUTES
+    # Properties for attributes
     @property
     def consumed(self):
         return self.__consumed

@@ -16,34 +16,28 @@ class Player(pg.sprite.Sprite):
                          pg.image.load(os.path.join('assets', 'Pacman3.png')).convert_alpha(),
                          pg.image.load(os.path.join('assets', 'Pacman4.png')).convert_alpha()]
         self.__image = self.__images[0]  # Initialize pacman image to first sprite
-        # The following is for image animation
+        self.__image = pg.transform.scale(self.__image, (46, 46)) # Resize image
+        self.__rect = self.__image.get_rect() # Get the rectangle for the sprite
+        # The following is for image animation and timing
         self.__time_interval = 0.1
         self.__index = 0
         self.__timer = 0
-        # Resize sprite
-        self.__image = pg.transform.scale(self.__image, (46, 46))
-        self.__rect = self.__image.get_rect()
         # Set player starting point
         self.__rect.centerx = 435
         self.__rect.centery = 485
-        # set starting direction
+        # Set starting direction
         self.__current_direction = "right"
         self.__new_direction = "right"
         self.__changedDirection = False
-        # Direction arrows
+        # Direction arrow
         self.__Arrow = pg.image.load(os.path.join('assets', 'arrow.png')).convert_alpha()
         self.__ArrowRect = self.__Arrow.get_rect()
-        # self.__lives = 3
-        self.__mode = "normal"
+        self.__mode = "normal" # Mode for powerup detection
 
-    # PROPERTIES FOR NON PUBLIC ATTRIBUTES
+    # Properties for attributes
     @property
     def rect(self):
         return self.__rect
-
-    @rect.setter
-    def rect(self, newRect):
-        self.__rect = newRect
 
     @property
     def mode(self):
@@ -58,8 +52,7 @@ class Player(pg.sprite.Sprite):
         return self.__lives
 
     def draw(self, screen):
-        """Draws the player (pacman) and direction arrow to the screen,
-        using direction variables to ensure the correct orientation of both"""
+        """Draws the player (pacman) and direction arrow to the screen"""
         # Draw player pacman - rotate depending on current direction
         if self.__current_direction == "right":
             screen.blit(self.__image, self.__rect)
@@ -69,9 +62,8 @@ class Player(pg.sprite.Sprite):
             screen.blit(pg.transform.rotate(self.__image, 90), self.__rect)
         if self.__current_direction == "down":
             screen.blit(pg.transform.rotate(self.__image, 270), self.__rect)
-        # Set position of arrow
-        self.__ArrowRect.clamp_ip(self.__rect)  # Ties arrow to player image
         # Draw arrow - rotate depending on new direction to get correct orientation
+        self.__ArrowRect.clamp_ip(self.__rect)  # Ties arrow to player image
         if self.__new_direction == "up":
             screen.blit(self.__Arrow, self.__ArrowRect)
         if self.__new_direction == "right":
@@ -114,10 +106,10 @@ class Player(pg.sprite.Sprite):
         for ghost in ghosts:
             if self.rect.colliderect(ghost.rect):
                 if self.mode == "normal":
-                    self.__init__()  # Reinitialize player to reset to default values
+                    self.__init__()  # Reinitialize player to respawn/reset to default values
                     self.__lives -= 1  # Decrement lives count
                 elif self.mode == "powered":
-                    ghost.__init__(ghost.originalImage, ghost.startX, ghost.startY, ghost.start_direction)  # Reinitialize ghost
+                    ghost.__init__(ghost.originalImage, ghost.startX, ghost.startY)  # Reinitialize ghost to respawn it
 
     def move(self, walls, delta):
         """Allows the player to move continuously in a direction until a collision is detected"""
@@ -148,28 +140,23 @@ class Player(pg.sprite.Sprite):
                 self.__rect.centery -= move_amount
             elif self.__current_direction == "down":
                 self.__rect.centery += move_amount
-        # Handle wraparound for "teleporter" part
-        positionX = self.__rect.centerx
-        wrap_around = False
-        if positionX < 0: # Left-side
-            positionX += 872
-            wrap_around = True
-        if positionX > 872: # Right-side
-            positionX -= 872
-            wrap_around = True
-        if wrap_around:
-            self.__rect.centerx = positionX
+        # Handle wraparound for "teleport" part of map
+        if self.__rect.centerx < 0:  # Left-side
+            self.__rect.centerx += 872
+        if self.__rect.centerx > 872:  # Right-side
+            self.__rect.centerx -= 872
 
     def checkDirection(self, direction, walls):
         """Checks for a map collision in the given direction, returning true if there is no collision"""
         new_rect = self.__rect.copy()  # Create a copy of the player's rect for testing
+        # Move a small amount in given direction to check for a collision
         if direction == "right":
-            new_rect.x += 6  # Move a small distance to check for collisions on the right
+            new_rect.x += 6
         elif direction == "left":
-            new_rect.x -= 6  # Move a small distance to check for collisions on the left
+            new_rect.x -= 6
         elif direction == "up":
-            new_rect.y -= 6  # Move a small distance to check for collisions upward
+            new_rect.y -= 6
         elif direction == "down":
-            new_rect.y += 6  # Move a small distance to check for collisions downward
+            new_rect.y += 6
         if not walls.mapCollide(new_rect):  # Check for collision with the new direction
-            return True  # Update the player's rect only if no collision detected
+            return True  # Return true for no collision in given direction

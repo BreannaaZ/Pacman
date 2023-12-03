@@ -1,43 +1,31 @@
 import os
 import pygame as pg
 from pacmanmap import *
-import math
 import random
 
 
 class Ghost(pg.sprite.Sprite):
     """A class to store Ghost information."""
-    def __init__(self, image, centerx, centery, start_direction):
+
+    def __init__(self, image, centerx, centery):
         """Class initializer code."""
         super(Ghost, self).__init__()  # Call sprite initializer
-
-        # Images and rect
-        self.__originalImage = image
+        self.__originalImage = image  # Need a starting image attribute separate from image for the ghost
+        # to revert to after changing images
         self.__image = image
-        self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
+        self.__image = pg.transform.scale(self.__image, (46, 46))
         self.__rect = self.__image.get_rect()
-
         # Set ghost starting point
-        self.__startX = centerx
+        self.__startX = centerx  # Again, need starting x and y for ghost to respawn at after being reinitialized
         self.__startY = centery
         self.__rect.centerx = centerx
         self.__rect.centery = centery
-
-        # set starting direction
-        self.__start_direction = start_direction
-        self.__current_direction = start_direction
-
+        # set directions
+        self.__current_direction = random.choice(["right", "left", "up", "down"])  # Choose a random direction to start
         self.__possible_directions = []  # List to hold possible directions for ghost
-        # Best direction will be the direction that reduces the ghost's distance to the player the most
-        # out of the possible directions
-        self.__best_direction = start_direction  # Initialize the best direction to starting direction
-
-        self.__time_interval = 5
-        self.__index = 0
-        self.__timer = 0
-
-        self.__mode = "normal"  # Mode will control whether the ghost is in a normal state - to path towards the
-        # player - or whether the ghost is frightened and should run from the player
+        # Best direction is the next direction the ghost will go in
+        self.__best_direction = self.__current_direction  # Initialize the best direction to starting direction
+        self.__mode = "normal"  # Mode will control whether the ghost is in a normal or frightened state
 
     @property
     def rect(self):
@@ -56,10 +44,6 @@ class Ghost(pg.sprite.Sprite):
         self.__mode = newMode
 
     @property
-    def image(self):
-        return self.__image
-
-    @property
     def originalImage(self):
         return self.__originalImage
 
@@ -71,18 +55,12 @@ class Ghost(pg.sprite.Sprite):
     def startY(self):
         return self.__startY
 
-    @property
-    def start_direction(self):
-        return self.__start_direction
-
     def draw(self, screen):
         """Draws the ghost to the screen"""
-        # Draw ghost to screen
         screen.blit(self.__image, self.__rect)
 
     def move(self, walls, delta, player_centerx, player_centery):
         """Allows the ghost to move continuously in a direction until a collision or better direction is detected"""
-        # Update to make so ghost won't move for a short time interval after dying
         move_amount = 94 * delta  # Ghost will move slightly slower than the player
         self.getDirections(walls)  # Get possible directions
         self.chooseDirection(delta, walls, player_centerx, player_centery)  # Choose a direction from possible ones
@@ -95,17 +73,11 @@ class Ghost(pg.sprite.Sprite):
             self.__rect.centery -= move_amount
         if self.__current_direction == "down":
             self.__rect.centery += move_amount
-        # Handle wraparound for "teleporter" part
-        positionX = self.__rect.centerx
-        wrap_around = False
-        if positionX < 0:  # Left-side
-            positionX += 872
-            wrap_around = True
-        if positionX > 872:  # Right-side
-            positionX -= 872
-            wrap_around = True
-        if wrap_around:
-            self.__rect.centerx = positionX
+        # Handle wraparound for "teleport" part of map
+        if self.__rect.centerx < 0:  # Left-side
+            self.__rect.centerx += 872
+        if self.__rect.centerx > 872:  # Right-side
+            self.__rect.centerx -= 872
 
     def getDirections(self, walls):
         """Finds all the possible directions for the ghost (directions with no collisions)"""
@@ -143,13 +115,13 @@ class Ghost(pg.sprite.Sprite):
         #   -If there is no collision in current_direction, proceed in current_direction
         #   -At a collision, if only one direction is valid (dead end) go in that direction (backwards)
         #   -At a collision, if more than one direction are valid, choose one at valid that isn't the direction
-        #   that the ghost came from.
-        # UPDATE to make so if the ghost "sees" the player it goes towards the player unless it's in frightened mode, runs away
-        if self.__current_direction in self.__possible_directions: # Case: No collision on current direction
+        #   that the ghost came from (this prevents "pacing" back and forth)
+        if self.__current_direction in self.__possible_directions:  # Case: No collision on current direction
             # Keep moving in current direction
             self.__best_direction = self.__current_direction
         elif len(
-                self.__possible_directions) == 1:  # If only backwards is valid, go backwards - in this case possible directions will only have 1 item
+                self.__possible_directions) == 1:  # If only backwards is valid, go backwards -
+            # in this case possible directions will only have 1 item
             self.__best_direction = self.__possible_directions[0]
         elif len(self.__possible_directions) > 1:
             # If more than 2 directions are legal, choose the best or random direction that ISN'T the previous one
@@ -186,14 +158,13 @@ class Ghost(pg.sprite.Sprite):
             if direction == "down":
                 distanceFromPlayer = abs(self.__rect.centerx - player_centerx) + abs(
                     (self.__rect.centery + 10) - player_centery)
-            if distanceFromPlayer < leastDistance: # Check if this distance is smaller
-                leastDistance = distanceFromPlayer # Update distance
+            if distanceFromPlayer < leastDistance:  # Check if this distance is smaller
+                leastDistance = distanceFromPlayer  # Update distance
                 self.__best_direction = direction  # Set best direction to this direction w/ the least distance
 
     def changeMode(self):
-            if self.__mode == "frightened":
-                self.__image = pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha()
-            else:
-                self.__image = self.__originalImage
-            self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
-
+        if self.__mode == "frightened":
+            self.__image = pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha()
+        else:
+            self.__image = self.__originalImage
+        self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed

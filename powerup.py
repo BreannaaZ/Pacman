@@ -11,14 +11,12 @@ class Powerup(Consumable):
         """Class initializer code."""
         # Every powerup will have the same value and image; we can call consumable initializer with these
         # The super Consumable constructor initializes the value, picture, image, and consumed variables
-        super().__init__(50, pg.image.load(os.path.join('assets', 'pacmanPowerUp.png')).convert_alpha())
-        # NOT SURE if these two need to be made private
-        self.rect.centerx = centerx
-        self.rect.centery = centery
+        super().__init__(50, pg.image.load(os.path.join('assets', 'pacmanPowerUp.png')).convert_alpha(),
+                         centerx, centery)
 
     def powerUp(self, player, ghost, current_time, end_time):
         """Changes the ghost into a frightened state, and gives the player the powerUp ability
-        for a short time interval. """
+        for a short time interval."""
         if current_time < end_time:
             ghost.mode = "frightened"
             player.mode = "powered"
@@ -26,4 +24,5 @@ class Powerup(Consumable):
             ghost.mode = "normal"
             player.mode = "normal"
         ghost.changeMode()
+
 

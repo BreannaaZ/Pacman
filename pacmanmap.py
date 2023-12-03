@@ -3,9 +3,11 @@ import pygame as pg
 
 
 class PacmanMap:
+    """A class to store the walls of the map (list of rectangle objects)."""
     def __init__(self):
+        """Class initializer code."""
         self.__walls = []  # Make a list of the walls
-        self.__gridSize = 51 # Using a grid to easily plot the walls on the background map
+        self.__gridSize = 51  # Using a grid to easily plot the walls on the background map
         # Add all the map's walls
         # Outer walls:
         self.__walls.append(pg.Rect(0*self.__gridSize, 0*self.__gridSize, 17*self.__gridSize, 1*self.__gridSize))
@@ -24,6 +26,7 @@ class PacmanMap:
         #   Middle:
         self.__walls.append(pg.Rect(8*self.__gridSize, 1*self.__gridSize, 1*self.__gridSize, 2*self.__gridSize))
         self.__walls.append(pg.Rect(8*self.__gridSize, 13*self.__gridSize, 1*self.__gridSize, 3*self.__gridSize))
+        self.__walls.append(pg.Rect(6*self.__gridSize, 14*self.__gridSize, 5*self.__gridSize, 2*self.__gridSize))
         #   Right:
         self.__walls.append(pg.Rect(13*self.__gridSize, 6*self.__gridSize, 3*self.__gridSize, 2*self.__gridSize))
         self.__walls.append(pg.Rect(13*self.__gridSize, 9*self.__gridSize, 3*self.__gridSize, 2*self.__gridSize))
@@ -56,14 +59,13 @@ class PacmanMap:
         # Ghost box:
         self.__walls.append(pg.Rect(7*self.__gridSize, 7*self.__gridSize, 3*self.__gridSize, 2*self.__gridSize))
 
-        self.__walls.append(pg.Rect(6*self.__gridSize, 14*self.__gridSize, 5*self.__gridSize, 2*self.__gridSize))
-
-
+    # Properties for attributes
     @property
     def walls(self):
         return self.__walls
 
     def mapCollide(self, rect):
+        """Checks for a collision between any of the walls and the given rectangle object."""
         for wall in self.__walls:
             if wall.colliderect(rect):
                 return True
