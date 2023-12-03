@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+"""Main pacman game
+@Author: Breanna Zinky
+@Date: 12/3/2023
+@Version: 1.0
+"""
+
 import os
 import pygame as pg
 from pygame.locals import *
@@ -11,8 +19,11 @@ from ghost import *
 
 class Game:
     """A class to create the game with a main game setup and core game loop"""
+
     def __init__(self):
-        """Class initializer code - sets up the game"""
+        """Class initializer code - sets up the game by creating the necessary pygame objects,
+        all necessary images, and game objects like player, ghosts, pellets, powerups, map walls, etc.
+        """
         # Set up pygame
         pg.init()
         self.__screen = pg.display.set_mode((872, 872))
@@ -23,7 +34,8 @@ class Game:
         self.__score = 0
 
         # Start sound
-        pg.mixer.music.load('./assets/MainTheme.wav')
+        pg.mixer.music.load('./assets/MainTheme.wav') # Music asset credit to Kat, source:
+        # https://opengameart.org/content/title-theme-8-bit-style
         pg.mixer.music.play(-1)
 
         # Get font setup
@@ -43,7 +55,8 @@ class Game:
         # Create powerups
         self.__powerups = [Powerup(435, 180),
                            Powerup(80, 790),
-                           Powerup(790, 790)]
+                           Powerup(790, 790),
+                           Powerup(-50, -50)]  # Extra hidden powerup to pad list since it becoming empty causes issues
         self.__powerup_end_time = 0
 
         # Create a grid of pellets covering the entire screen
@@ -53,18 +66,19 @@ class Game:
                 self.__pellets.append(Pellet(x, y))
 
         # Now remove any pellets that overlap the walls and powerups
-        # List comprehension to set pellets list to only the pellets not colliding with walls/powerups
-        self.__pellets = [pellet for pellet in self.__pellets if
-                          not any(pellet.rect.colliderect(wall) for wall in self.__pacmanmap.walls)]
-        self.__pellets = [pellet for pellet in self.__pellets if
-                          not any(pellet.rect.colliderect(powerup) for powerup in self.__powerups)]
+        valid_pellets = []
+        for pellet in self.__pellets:
+            if not any(pellet.rect.colliderect(wall) for wall in self.__pacmanmap.walls) and \
+                    not any(pellet.rect.colliderect(powerup) for powerup in self.__powerups):
+                valid_pellets.append(pellet)
+        self.__pellets = valid_pellets
 
         # Calculate the winning score by adding up pellets value and powerups value;
         # A win occurs when all pellets and powerups are consumed.
         self.__winningScore = 0
         for pellet in self.__pellets:
             self.__winningScore += pellet.value
-        for powerup in self.__powerups:
+        for powerup in self.__powerups[:3]:
             self.__winningScore += powerup.value
 
         # Create player
@@ -81,6 +95,7 @@ class Game:
                                790, 790)]
 
     def play(self):
+        """Runs the core game loop; handles events, updates game objects and state, and draws to the screen."""
         # Start core game loop
         while self.__running:
             # Handle events
@@ -90,17 +105,17 @@ class Game:
             # Input events - key movement
             keys = pg.key.get_pressed()
 
-            # Move player and ghost
-            self.__player.move(self.__pacmanmap, self.__delta)
-            for ghost in self.__ghosts:
-                ghost.move(self.__pacmanmap, self.__delta, self.__player.rect.centerx, self.__player.rect.centery)
-
             # Update game state/elements
             current_time = pg.time.get_ticks()  # Get current time
             self.__player.update(keys, self.__delta, self.__ghosts)  # Update player based on key input
-            for powerup in self.__powerups: # Update ghosts' and player's powerup state
+            for powerup in self.__powerups:  # Update ghosts' and player's powerup state
                 for ghost in self.__ghosts:
                     powerup.powerUp(self.__player, ghost, current_time, self.__powerup_end_time)
+
+            # Move player and ghost
+            self.__player.move(self.__pacmanmap, self.__delta)
+            for ghost in self.__ghosts:
+                ghost.move(self.__pacmanmap, self.__delta)
 
             # Check for loss condition
             if self.__player.lives == 0:

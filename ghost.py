@@ -1,3 +1,9 @@
+"""Pacman ghost for main game
+@Author: Breanna Zinky
+@Date: 12/3/2023
+@Version: 1.0
+"""
+
 import os
 import pygame as pg
 from pacmanmap import *
@@ -8,9 +14,15 @@ class Ghost(pg.sprite.Sprite):
     """A class to store Ghost information."""
 
     def __init__(self, image, centerx, centery):
-        """Class initializer code."""
+        """Class initializer code.
+
+        Args:
+            image: The starting image for the ghost
+            centerx: The starting x coordinate for the ghost
+            centery: The starting y coordinate for the ghost
+        """
         super(Ghost, self).__init__()  # Call sprite initializer
-        self.__originalImage = image  # Need a starting image attribute separate from image for the ghost
+        self.__original_image = image  # Need a starting image attribute separate from image for the ghost
         # to revert to after changing images
         self.__image = image
         self.__image = pg.transform.scale(self.__image, (46, 46))
@@ -44,8 +56,8 @@ class Ghost(pg.sprite.Sprite):
         self.__mode = newMode
 
     @property
-    def originalImage(self):
-        return self.__originalImage
+    def original_image(self):
+        return self.__original_image
 
     @property
     def startX(self):
@@ -59,11 +71,16 @@ class Ghost(pg.sprite.Sprite):
         """Draws the ghost to the screen"""
         screen.blit(self.__image, self.__rect)
 
-    def move(self, walls, delta, player_centerx, player_centery):
-        """Allows the ghost to move continuously in a direction until a collision or better direction is detected"""
-        move_amount = 94 * delta  # Ghost will move slightly slower than the player
+    def move(self, walls, delta):
+        """Allows the ghost to move continuously in a direction until a collision or better direction is detected
+
+        Args:
+            walls: The list of rectangles representing the map's walls.
+            delta: Number scaled with time (time since last frame) to improve movement.
+        """
+        move_amount = 110 * delta  # Ghost will move slightly slower than the player
         self.getDirections(walls)  # Get possible directions
-        self.chooseDirection(delta, walls, player_centerx, player_centery)  # Choose a direction from possible ones
+        self.chooseDirection()  # Choose a direction from possible ones
         self.__current_direction = self.__best_direction  # Move in chosen direction
         if self.__current_direction == "right":
             self.__rect.centerx += move_amount
@@ -80,7 +97,12 @@ class Ghost(pg.sprite.Sprite):
             self.__rect.centerx -= 872
 
     def getDirections(self, walls):
-        """Finds all the possible directions for the ghost (directions with no collisions)"""
+        """Finds all the possible directions for the ghost (directions with no collisions)
+        and adds them to the possible directions list.
+
+        Args:
+            walls: The list of rectangles representing the map's walls.
+        """
         # First clear the possible directions list
         del self.__possible_directions[:]
         new_rect = self.__rect.copy()  # Create a copy of the ghost's rect for testing
@@ -109,8 +131,8 @@ class Ghost(pg.sprite.Sprite):
             self.__possible_directions.append("down")
         new_rect.y -= 5
 
-    def chooseDirection(self, delta, walls, player_centerx, player_centery):
-        """Chooses a random direction from the ghost's possible directions"""
+    def chooseDirection(self):
+        """Chooses a random direction from the ghost's possible directions."""
         # Ghost movement algorithm:
         #   -If there is no collision in current_direction, proceed in current_direction
         #   -At a collision, if only one direction is valid (dead end) go in that direction (backwards)
@@ -139,7 +161,12 @@ class Ghost(pg.sprite.Sprite):
             self.__best_direction = random.choice(self.__possible_directions)
 
     def chooseBestDirection(self, player_centerx, player_centery):
-        """Choose the best direction from the list of possible directions"""
+        """Choose the best direction from the list of possible directions
+
+        Args:
+            player_centerx: The x coordinate for the center of the player rectangle
+            player_centery: The y coordinate for the center of the player rectangle
+        """
         # Best direction here is calculated as the direction that results in the least distance from player
         # Manhattan Distance Formula: abs(current_cell.x – goal.x) + abs(current_cell.y – goal.y)
         distanceFromPlayer = abs(self.__rect.centerx - player_centerx) + abs(self.__rect.centery - player_centery)
@@ -163,8 +190,19 @@ class Ghost(pg.sprite.Sprite):
                 self.__best_direction = direction  # Set best direction to this direction w/ the least distance
 
     def changeMode(self):
+        """Changes the ghost's image depending on it's state (frightened or normal)"""
         if self.__mode == "frightened":
             self.__image = pg.image.load(os.path.join('assets', 'deadGhost.png')).convert_alpha()
         else:
-            self.__image = self.__originalImage
+            self.__image = self.__original_image
         self.__image = pg.transform.scale(self.__image, (46, 46))  # Scale image if needed
+
+    def respawn(self, original_image, startX, startY):
+        """Re-initializes the ghost with its original image and coordinates to respawn it.
+
+        Args:
+            original_image: The ghost's original image
+            startX: The ghost's starting X coordinate
+            startY: The ghost's starting Y coordinate
+        """
+        self.__init__(original_image, startX, startY)  # Reinitialize ghost with starting values to respawn it

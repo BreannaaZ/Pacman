@@ -1,3 +1,9 @@
+"""Pacman player for main game
+@Author: Breanna Zinky
+@Date: 12/3/2023
+@Version: 1.0
+"""
+
 import os
 import pygame as pg
 from pacmanmap import *
@@ -8,7 +14,7 @@ class Player(pg.sprite.Sprite):
     __lives = 3
 
     def __init__(self):
-        """Class initializer code."""
+        """Class initializer code. Sets the player images and starting position and direction."""
         super(Player, self).__init__()  # Call sprite initializer
         # Create pacman images (multiple for animation)
         self.__images = [pg.image.load(os.path.join('assets', 'Pacman1.png')).convert_alpha(),
@@ -28,10 +34,10 @@ class Player(pg.sprite.Sprite):
         # Set starting direction
         self.__current_direction = "right"
         self.__new_direction = "right"
-        self.__changedDirection = False
+        self.__changed_direction = False
         # Direction arrow
-        self.__Arrow = pg.image.load(os.path.join('assets', 'arrow.png')).convert_alpha()
-        self.__ArrowRect = self.__Arrow.get_rect()
+        self.__arrow = pg.image.load(os.path.join('assets', 'arrow.png')).convert_alpha()
+        self.__arrow_rect = self.__arrow.get_rect()
         self.__mode = "normal" # Mode for powerup detection
 
     # Properties for attributes
@@ -52,7 +58,11 @@ class Player(pg.sprite.Sprite):
         return self.__lives
 
     def draw(self, screen):
-        """Draws the player (pacman) and direction arrow to the screen"""
+        """Draws the player (pacman) and direction arrow to the screen.
+
+        Args:
+            screen: The pygame screen surface to draw to.
+        """
         # Draw player pacman - rotate depending on current direction
         if self.__current_direction == "right":
             screen.blit(self.__image, self.__rect)
@@ -63,34 +73,40 @@ class Player(pg.sprite.Sprite):
         if self.__current_direction == "down":
             screen.blit(pg.transform.rotate(self.__image, 270), self.__rect)
         # Draw arrow - rotate depending on new direction to get correct orientation
-        self.__ArrowRect.clamp_ip(self.__rect)  # Ties arrow to player image
+        self.__arrow_rect.clamp_ip(self.__rect)  # Ties arrow to player image
         if self.__new_direction == "up":
-            screen.blit(self.__Arrow, self.__ArrowRect)
+            screen.blit(self.__arrow, self.__arrow_rect)
         if self.__new_direction == "right":
-            screen.blit(pg.transform.rotate(self.__Arrow, 270), self.__ArrowRect)
+            screen.blit(pg.transform.rotate(self.__arrow, 270), self.__arrow_rect)
         if self.__new_direction == "down":
-            screen.blit(pg.transform.rotate(self.__Arrow, 180), self.__ArrowRect)
+            screen.blit(pg.transform.rotate(self.__arrow, 180), self.__arrow_rect)
         if self.__new_direction == "left":
-            screen.blit(pg.transform.rotate(self.__Arrow, 90), self.__ArrowRect)
+            screen.blit(pg.transform.rotate(self.__arrow, 90), self.__arrow_rect)
 
     def update(self, keys, delta, ghosts):
-        """Updates the player's direction depending on user input/keys pressed"""
+        """Updates the player's direction depending on user input/keys pressed.
+
+        Args:
+            keys: The key pressed by the user.
+            delta: Number scaled with time (time since last frame) to improve movement.
+            ghosts: The list of ghosts in the game.
+        """
         # Update keys and direction
         if keys[pg.K_s]:
-            if self.__changedDirection:  # Only update previous direction when the player
+            if self.__changed_direction:  # Only update previous direction when the player
                 # actually starts moving in new direction
                 self.__current_direction = self.__new_direction
             self.__new_direction = "down"
         if keys[pg.K_w]:
-            if self.__changedDirection:
+            if self.__changed_direction:
                 self.__current_direction = self.__new_direction
             self.__new_direction = "up"
         if keys[pg.K_a]:
-            if self.__changedDirection:
+            if self.__changed_direction:
                 self.__current_direction = self.__new_direction
             self.__new_direction = "left"
         if keys[pg.K_d]:
-            if self.__changedDirection:
+            if self.__changed_direction:
                 self.__current_direction = self.__new_direction
             self.__new_direction = "right"
 
@@ -109,11 +125,16 @@ class Player(pg.sprite.Sprite):
                     self.__init__()  # Reinitialize player to respawn/reset to default values
                     self.__lives -= 1  # Decrement lives count
                 elif self.mode == "powered":
-                    ghost.__init__(ghost.originalImage, ghost.startX, ghost.startY)  # Reinitialize ghost to respawn it
+                    ghost.respawn(ghost.original_image, ghost.startX, ghost.startY)
 
     def move(self, walls, delta):
-        """Allows the player to move continuously in a direction until a collision is detected"""
-        move_amount = 110 * delta
+        """Allows the player to move continuously in a direction until a collision is detected.
+
+        Args:
+            walls: The list of rectangles representing the map's walls.
+            delta: Number scaled with time (time since last frame) to improve movement.
+        """
+        move_amount = 130 * delta
         if self.checkDirection(self.__new_direction, walls):  # Case: No collision on new direction
             # Move in the new direction
             if self.__new_direction == "right":
@@ -126,11 +147,11 @@ class Player(pg.sprite.Sprite):
                 self.__rect.centery += move_amount
             # Check if the player changed direction
             if self.__new_direction != self.__current_direction:
-                self.__changedDirection = True
+                self.__changed_direction = True
                 self.__current_direction = self.__new_direction
         elif self.checkDirection(self.__current_direction, walls):  # Case: Collision on new direction but not
             # the current direction
-            self.__changedDirection = False
+            self.__changed_direction = False
             # Keep moving in the current direction
             if self.__current_direction == "right":
                 self.__rect.centerx += move_amount
@@ -147,7 +168,15 @@ class Player(pg.sprite.Sprite):
             self.__rect.centerx -= 872
 
     def checkDirection(self, direction, walls):
-        """Checks for a map collision in the given direction, returning true if there is no collision"""
+        """Checks for a map collision in the given direction.
+
+        Args:
+            direction: A string representing the direction to check (left, right, up, or down).
+            walls: The list of rectangles representing the map's walls.
+
+        Returns:
+            boolean - True if there is no collision between walls and given rectangle, false if there is.
+        """
         new_rect = self.__rect.copy()  # Create a copy of the player's rect for testing
         # Move a small amount in given direction to check for a collision
         if direction == "right":
