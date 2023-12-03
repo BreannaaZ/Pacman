@@ -121,7 +121,7 @@ class Player(pg.sprite.Sprite):
 
     def move(self, walls, delta):
         """Allows the player to move continuously in a direction until a collision is detected"""
-        move_amount = 95 * delta
+        move_amount = 110 * delta
         if self.checkDirection(self.__new_direction, walls):  # Case: No collision on new direction
             # Move in the new direction
             if self.__new_direction == "right":

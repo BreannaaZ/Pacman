@@ -43,21 +43,22 @@ def main():
     # Create map walls (pacmanmap is essentially an array of rectangles that fit the background map image)
     pacmanmap = PacmanMap()
 
+    # Create powerups
+    powerups = [Powerup(435, 180),
+                Powerup(80, 790),
+                Powerup(790, 790)]
+
     # Create a grid of pellets covering the entire screen
     pellets = []
     for x in range(30, 872, 50):
         for y in range(30, 872, 50):
             pellets.append(Pellet(x, y))
 
-    # Now remove any pellets that overlap the walls
-    # List comprehension to set pellets to only the pellets not colliding with walls
+    # Now remove any pellets that overlap the walls and powerups
+    # List comprehension to set pellets to only the pellets not colliding with walls/powerups
     # newlist = [expression for item in iterable if condition == True]
     pellets = [pellet for pellet in pellets if not any(pellet.rect.colliderect(wall) for wall in pacmanmap.walls)]
-
-    # Create powerups
-    powerups = [Powerup(435, 180),
-                Powerup(80, 790),
-                Powerup(790, 790)]
+    pellets = [pellet for pellet in pellets if not any(pellet.rect.colliderect(powerup) for powerup in powerups)]
 
     # Calculate winning score by adding up pellets value and powerUps value
     winningScore = 0
@@ -77,7 +78,10 @@ def main():
               Ghost(pg.image.load(os.path.join('assets', 'orangeGhost.png')).convert_alpha(),
                       790, 75, "right"),
               Ghost(pg.image.load(os.path.join('assets', 'redGhost.png')).convert_alpha(),
-                      435, 640, "right")]
+                      75, 790, "right"),
+              Ghost(pg.image.load(os.path.join('assets', 'blackGhost.png')).convert_alpha(),
+                    790, 790, "right")
+              ]
 
     #blueGhost = Ghost(pg.image.load(os.path.join('assets', 'blueGhost.png')).convert_alpha(),
     #                  75, 590, "right")
@@ -148,20 +152,20 @@ def main():
         scoreText = "SCORE: "
         scoreText += str(score)
         scoreSurface = font.render(scoreText, False, [254, 254, 254])
-        screen.blit(scoreSurface, (355, 5))
+        screen.blit(scoreSurface, (355, 0))
 
         # Display lives
         livesText = "LIVES"
         livesSurface = font.render(livesText, False, [254, 254, 254])
-        screen.blit(livesSurface, (390, 735))
+        screen.blit(livesSurface, (390, 745))
 
         # Icon positioning: (x, 780)
         if player.lives >= 1:
-            screen.blit(livesIcon, (380, 775))
+            screen.blit(livesIcon, (380, 785))
         if player.lives >= 2:
-            screen.blit(livesIcon, (420, 775))
+            screen.blit(livesIcon, (420, 785))
         if player.lives == 3:
-            screen.blit(livesIcon, (460, 775))
+            screen.blit(livesIcon, (460, 785))
 
         # Flip buffer when drawing is done
         pg.display.flip()
